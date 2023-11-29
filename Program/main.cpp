@@ -15,7 +15,7 @@ double expressionParser(std::string expression){
 }
 
 //Binary operator solver
-double termSolver(double termOne, double termTwo, std::string operator){
+double termSolver(std::string operation){
 
 }
 
