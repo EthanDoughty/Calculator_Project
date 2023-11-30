@@ -1,4 +1,5 @@
 #include "calculators.h"
+using std::istringstream;
 
 bool isOperator(char c) {
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
@@ -47,11 +48,11 @@ double expressionParser(std::string& expression, size_t& index){
 
 //Binary operator solver ex: input 5*5 returns 25
 double termSolver(std::string& operation) {
-    std::istringstream std::iss(operation);
+    istringstream iss(operation);
     double operand1, operand2;
     char op;
 
-    std::iss >> operand1 >> op >> operand2;
+    iss >> operand1 >> op >> operand2;
 
     switch (op) {
         case '+':
