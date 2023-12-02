@@ -65,7 +65,7 @@ double termSolver(std::string& operation) {
             if (operand2 != 0.0) {
                 return operand1 / operand2;
             } else {
-                // Handle error: Division by zero
+                // Handle error: Division by zero (Doesn't end program)
                 std::cerr << "Error: Division by zero\n";
                 return 0.0;
             }
