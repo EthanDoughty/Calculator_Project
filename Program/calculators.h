@@ -1,10 +1,11 @@
 #ifndef CALCULATORS_H
 #define CALCULATORS_H
 #include <iostream>
-#include <string>
-#include <cmath>
-#include <stack>
-#include <sstream> 
+#include <string> //string functions
+#include <cmath> //math function
+#include <stack> //stack data structure
+#include <sstream> //string stream
+#include <cstdlib> //exit function
 
 bool isOperator(char);
 bool isNum(char);

@@ -67,7 +67,7 @@ double termSolver(std::string& operation) {
             } else {
                 // Handle error: Division by zero (Doesn't end program)
                 std::cerr << "Error: Division by zero\n";
-                return 0.0;
+                exit(2);
             }
         case '%':
             if (operand2 != 0.0) {
@@ -75,22 +75,33 @@ double termSolver(std::string& operation) {
             } else {
                 // Handle error: Modulo by zero
                 std::cerr << "Error: Modulo by zero\n";
-                return 0.0;
+                exit(3);
             }
         default:
             // Handle error: Invalid operator
             std::cerr << "Error: Invalid operator '" << op << "'\n";
-            return 0.0;
+            exit(4);
     }
 }
 
 
 //Gets expression passes to solver prints returned result
-int main(){
-    std::cout << "Enter an expression: ";
+int main(int argc, char* argv[]){
     std::string expression;
-    std::getline(std::cin, expression);
-    double result = solver(expression);
+
+    if (argc == 2){
+        expression = argv[1];
+    }
+    else if (argc > 2){
+        std::cerr << "Only 1 expression allowed" << std::endl;
+        exit(1);
+    }
+    else{
+        std::cout << "Enter an expression: ";
+        std::getline(std::cin, expression);
+    }
+
+    double result = termSolver(expression);
     std::cout << "Answer: " << result << std::endl;
     return 0;
 }
