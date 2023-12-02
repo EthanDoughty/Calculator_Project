@@ -1,6 +1,7 @@
 #include "calculators.h"
 using std::istringstream;
 
+
 bool isOperator(char c) {
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
 }
@@ -23,7 +24,10 @@ double solver(std::string expression){
 
 //Checks for basic errors returns true if error free
 bool errorHandler(std::string expression){
-    
+    int open_parens_count, close_parents_count, parens_counter; 
+    for (int i = 0; i < expression.size(); i++){
+
+    }   
     //Checks for invalid characters
     for (int i = 0; i < expression.size(); i++){
         if (isNum(expression[i]) || isOperator(expression[i]) ){
@@ -36,14 +40,49 @@ bool errorHandler(std::string expression){
     return true;
 }
 
-//PEMDAS Handler Passes to termSolver
-//Parses 5-2*(6-3) and passes 6-3 to term solver resulting in 5-2*3 
-    //then 2*3 then passes 5-6, Returns final answer of -1 to solver
+//PEMDAS Handler Passes to emdas that passes to termsolver
 double expressionParser(std::string& expression, size_t& index){
-    //std::cout << expression.length() << std::endl;
-    expression.find("(") != std::string::npos;
-    // return something here
+    size_t startPos = index;
+    size_t stopPos = index;
+    int openParenCount = 0;
+    while (stopPos < expression.size()){
+        if (expression[stopPos] == '('){
+            openParenCount++;
+        }
+        else if(expression[stopPos] == ')'){
+            openParenCount--;
+            if (openParenCount == 0){
+                break;
+            }
+        }
+        stopPos++;
+    }
+    std::string subexpression = expression.substr(startPos + 1, stopPos - startPos - 1);
+    double subexpressionResult = emdas(subexpression);
+    expression.replace(startPos, stopPos-startPos+1, std::to_string(subexpressionResult));
+    
     return 0; 
+} 
+
+
+// -2+5*4
+double emdas(std::string& expression){
+    if (expression.find("(") != std::string::npos){
+        size_t index = 0;
+        expressionParser(expression, index);
+    }
+    
+    for (int i = 0; i < expression.size(); i++){
+        if (expression[i] == '^'){
+
+        }
+    }
+    for (int i = 0; i < expression.size(); i++){
+        if (expression[i] == '*' || expression[i] == '/'){
+            // something happens here
+            
+        }
+    }
 }
 
 //Binary operator solver ex: input 5*5 returns 25
@@ -69,6 +108,8 @@ double termSolver(std::string& operation) {
                 std::cerr << "Error: Division by zero\n";
                 exit(2);
             }
+        case '^':
+            return pow(operand1, operand2);
         case '%':
             if (operand2 != 0.0) {
                 return std::fmod(operand1, operand2);
