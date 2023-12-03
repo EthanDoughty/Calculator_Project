@@ -6,6 +6,7 @@
 #include <stack> //stack data structure
 #include <sstream> //string stream
 #include <cstdlib> //exit function
+#include <algorithm>
 
 bool isOperator(char);
 bool isNum(char);

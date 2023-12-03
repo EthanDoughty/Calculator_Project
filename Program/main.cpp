@@ -2,6 +2,7 @@
 using std::istringstream;
 
 
+// 9
 bool isOperator(char c) {
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
 }
@@ -24,15 +25,18 @@ double solver(std::string expression){
 
 //Checks for basic errors returns true if error free
 bool errorHandler(std::string expression){
-    int open_parens_count, close_parents_count, parens_counter; 
+    int openParens = 0, closedParens = 0, parensCount = 0;
     for (int i = 0; i < expression.size(); i++){
-
-    }   
+        if(expression[i] == '('){openParens += 1; parensCount += 1;}
+        if(expression[i] == ')'){closedParens += 1; parensCount -= 1;}
+        if(parensCount < 0){std::cerr << "Parentheses Error\n"; exit(6);}
+    }
+    if (closedParens != openParens){std::cerr << "Unmatched Parentheses\n"; exit(5);}
     //Checks for invalid characters
     for (int i = 0; i < expression.size(); i++){
         if (isNum(expression[i]) || isOperator(expression[i]) ){
             continue; 
-        } 
+        }
         else{
             return false;
         }
@@ -58,9 +62,8 @@ double expressionParser(std::string& expression, size_t& index){
         stopPos++;
     }
     std::string subexpression = expression.substr(startPos + 1, stopPos - startPos - 1);
-    double subexpressionResult = emdas(subexpression);
+    double subexpressionResult = termSolver(subexpression);
     expression.replace(startPos, stopPos-startPos+1, std::to_string(subexpressionResult));
-    
     return 0; 
 } 
 
@@ -83,6 +86,7 @@ double emdas(std::string& expression){
             
         }
     }
+    return 0;
 }
 
 //Binary operator solver ex: input 5*5 returns 25
@@ -141,8 +145,10 @@ int main(int argc, char* argv[]){
         std::cout << "Enter an expression: ";
         std::getline(std::cin, expression);
     }
-
-    double result = termSolver(expression);
+    //Test this
+    expression.erase(std::remove_if(expression.begin(), expression.end(), ::isspace), expression.end());
+    std::cout << "Expression: " << expression << std::endl;
+    double result = solver(expression);
     std::cout << "Answer: " << result << std::endl;
     return 0;
 }
