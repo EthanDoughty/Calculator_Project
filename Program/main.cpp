@@ -18,7 +18,7 @@ double solver(std::string expression){
     //Pass to Error handler function then to expression parser to solve
     if (errorHandler(expression)){
         size_t index = 0;
-        result = expressionParser(expression, index);
+        result = parenthesesParser(expression, index);
     }
     return result;
 }
@@ -45,7 +45,7 @@ bool errorHandler(std::string expression){
 }
 
 //PEMDAS Handler Passes to emdas that passes to termsolver
-double expressionParser(std::string& expression, size_t& index){
+double parenthesesParser(std::string& expression, size_t& index){
     size_t startPos = index;
     size_t stopPos = index;
     int openParenCount = 0;
@@ -67,35 +67,11 @@ double expressionParser(std::string& expression, size_t& index){
     return 0; 
 } 
 
-
-// -2+5*4
-double emdas(std::string& expression){
-    if (expression.find("(") != std::string::npos){
-        size_t index = 0;
-        expressionParser(expression, index);
-    }
-    
-    for (int i = 0; i < expression.size(); i++){
-        if (expression[i] == '^'){
-
-        }
-    }
-    for (int i = 0; i < expression.size(); i++){
-        if (expression[i] == '*' || expression[i] == '/'){
-            // something happens here
-            
-        }
-    }
-    return 0;
-}
-
-//Binary operator solver ex: input 5*5 returns 25
-double termSolver(std::string& operation) {
-    istringstream iss(operation);
-    double operand1, operand2;
-    char op;
-
-    iss >> operand1 >> op >> operand2;
+// handles individual expressions
+double termSolver(double operand1, double operand2, char op){
+    std::cout << operand1 << std::endl;
+    std::cout << operand2 << std::endl;
+    std::cout << op << std::endl;
 
     switch (op) {
         case '+':
@@ -104,31 +80,67 @@ double termSolver(std::string& operation) {
             return operand1 - operand2;
         case '*':
             return operand1 * operand2;
+        case '^':
+            return pow(operand1, operand2);
         case '/':
             if (operand2 != 0.0) {
                 return operand1 / operand2;
             } else {
-                // Handle error: Division by zero (Doesn't end program)
+                // Handle error: Division by zero
                 std::cerr << "Error: Division by zero\n";
-                exit(2);
+                return 0.0;
             }
-        case '^':
-            return pow(operand1, operand2);
         case '%':
             if (operand2 != 0.0) {
                 return std::fmod(operand1, operand2);
             } else {
                 // Handle error: Modulo by zero
                 std::cerr << "Error: Modulo by zero\n";
-                exit(3);
+                return 0.0;
             }
         default:
             // Handle error: Invalid operator
             std::cerr << "Error: Invalid operator '" << op << "'\n";
-            exit(4);
+            return 0.0;
     }
 }
-
+// Breaks up the string into individual expressions which get passed to term2
+double expressionParser (std::string &s){
+    //std::cout << s << std::endl;
+    if(s.find('+') != std::string::npos || s.find('-') != std::string::npos){
+        int endpos = 0, count = s.size();
+        while(count >= 0) {
+            if(s[count] == '+' || s[count] == '-'){
+                endpos = count;
+                break;
+            }
+            count--;
+        }
+        std::string temp1 = s.substr(0,endpos);
+        std::string temp2 = s.substr(endpos+1, s.size()-1);
+        double temp3 = expressionParser(temp1);
+        double temp4 = expressionParser(temp2);
+        return termSolver(temp3, temp4, s[endpos]);
+    }
+    if(s.find('*') != std::string::npos || s.find('/') != std::string::npos){
+        int endpos = 0, count =s.size();
+        while(count >= 0) {
+            if(s[count] == '*' || s[count] == '/'){
+                endpos = count;
+                break;
+            }
+            count--;
+        }
+        std::string temp1 = s.substr(0,endpos);
+        std::string temp2 = s.substr(endpos+1, s.size()-1);
+        double temp3 = termSolver(temp1);
+        double temp4 = termSolver(temp2);
+        return termSolver(temp3, temp4, s[endpos]);
+    }
+    else{
+        return stod(s);
+    }
+}
 
 //Gets expression passes to solver prints returned result
 int main(int argc, char* argv[]){
