@@ -1,13 +1,27 @@
-#include "calculators.h"
+#include <iostream>
+#include <string> //string functions
+#include <cmath> //math function
+#include <stack> //stack data structure
+#include <sstream> //string stream
+#include <cstdlib> //exit function
+#include <algorithm>
+
+bool isOperator(char);
+bool isNum(char);
+double solver(std::string);
+bool errorHandler(std::string);
+double parenthesesParser(std::string&, size_t&);
+double expressionParser(std::string&);
+double termSolver(double, double, char);
 using std::istringstream;
 
 
-// 9
+//Check to make sure it is looking at operators, used in errorHandler to check for good input
 bool isOperator(char c) {
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
 }
 
-//Check to make sure it is checking numbers and not equivalent char values
+//Check to make sure it is checking numbers, used in errorHandler to check for good input
 bool isNum(char c) {
     return (c >= '0' && c <= '9') || c == '.';
 }
@@ -18,7 +32,12 @@ double solver(std::string expression){
     //Pass to Error handler function then to expression parser to solve
     if (errorHandler(expression)){
         size_t index = 0;
-        result = parenthesesParser(expression, index);
+        if (expression.find("(") != std::string::npos){
+            result = parenthesesParser(expression, index);
+        }
+        else{
+            result = expressionParser(expression);
+        }
     }
     return result;
 }
@@ -62,17 +81,13 @@ double parenthesesParser(std::string& expression, size_t& index){
         stopPos++;
     }
     std::string subexpression = expression.substr(startPos + 1, stopPos - startPos - 1);
-    double subexpressionResult = termSolver(subexpression);
+    double subexpressionResult = expressionParser(subexpression);
     expression.replace(startPos, stopPos-startPos+1, std::to_string(subexpressionResult));
     return 0; 
 } 
 
 // handles individual expressions
 double termSolver(double operand1, double operand2, char op){
-    std::cout << operand1 << std::endl;
-    std::cout << operand2 << std::endl;
-    std::cout << op << std::endl;
-
     switch (op) {
         case '+':
             return operand1 + operand2;
@@ -104,13 +119,13 @@ double termSolver(double operand1, double operand2, char op){
             return 0.0;
     }
 }
+
 // Breaks up the string into individual expressions which get passed to term2
 double expressionParser (std::string &s){
-    //std::cout << s << std::endl;
-    if(s.find('+') != std::string::npos || s.find('-') != std::string::npos){
+    if(s.find('+') != std::string::npos){
         int endpos = 0, count = s.size();
         while(count >= 0) {
-            if(s[count] == '+' || s[count] == '-'){
+            if(s[count] == '+'){
                 endpos = count;
                 break;
             }
@@ -122,7 +137,22 @@ double expressionParser (std::string &s){
         double temp4 = expressionParser(temp2);
         return termSolver(temp3, temp4, s[endpos]);
     }
-    if(s.find('*') != std::string::npos || s.find('/') != std::string::npos){
+    else if(s.find('-') != std::string::npos){
+        int endpos = 0, count = s.size();
+        while(count >= 0) {
+            if(s[count] == '-'){
+                endpos = count;
+                break;
+            }
+            count--;
+        }
+        std::string temp1 = s.substr(0,endpos);
+        std::string temp2 = s.substr(endpos+1, s.size()-1);
+        double temp3 = expressionParser(temp1);
+        double temp4 = expressionParser(temp2);
+        return termSolver(temp3, temp4, s[endpos]);
+    }
+    else if(s.find('*') != std::string::npos || s.find('/') != std::string::npos){
         int endpos = 0, count =s.size();
         while(count >= 0) {
             if(s[count] == '*' || s[count] == '/'){
@@ -133,8 +163,23 @@ double expressionParser (std::string &s){
         }
         std::string temp1 = s.substr(0,endpos);
         std::string temp2 = s.substr(endpos+1, s.size()-1);
-        double temp3 = termSolver(temp1);
-        double temp4 = termSolver(temp2);
+        double temp3 = expressionParser(temp1);
+        double temp4 = expressionParser(temp2);
+        return termSolver(temp3, temp4, s[endpos]);
+    }
+    else if(s.find('^') != std::string::npos){
+        int endpos = 0, count = s.size();
+        while(count >= 0) {
+            if(s[count] == '^'){
+                endpos = count;
+                break;
+            }
+            count--;
+        }
+        std::string temp1 = s.substr(0,endpos);
+        std::string temp2 = s.substr(endpos+1, s.size()-1);
+        double temp3 = expressionParser(temp1);
+        double temp4 = expressionParser(temp2);
         return termSolver(temp3, temp4, s[endpos]);
     }
     else{
@@ -158,7 +203,7 @@ int main(int argc, char* argv[]){
         std::getline(std::cin, expression);
     }
     //Test this
-    expression.erase(std::remove_if(expression.begin(), expression.end(), ::isspace), expression.end());
+    //expression.erase(std::remove_if(expression.begin(), expression.end(), ::isspace), expression.end());
     std::cout << "Expression: " << expression << std::endl;
     double result = solver(expression);
     std::cout << "Answer: " << result << std::endl;
