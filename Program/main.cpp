@@ -5,6 +5,7 @@
 #include <sstream> //string stream
 #include <cstdlib> //exit function
 #include <algorithm>
+#include <fstream>
 
 bool isOperator(char);
 bool isNum(char);
@@ -138,13 +139,13 @@ double expressionParser (std::string &s){
         return termSolver(temp3, temp4, s[endpos]);
     }
     else if(s.find('-') != std::string::npos){
-        int endpos = 0, count = s.size();
-        while(count >= 0) {
+        int endpos = 0, count = 0;
+        while(count < s.size()) {
             if(s[count] == '-'){
                 endpos = count;
                 break;
             }
-            count--;
+            count++;
         }
         std::string temp1 = s.substr(0,endpos);
         std::string temp2 = s.substr(endpos+1, s.size()-1);
@@ -187,25 +188,55 @@ double expressionParser (std::string &s){
     }
 }
 
+void printHistory(){
+    //print history.txt line by line
+}
+
+void saveToHistory(std::string expression, int& counter){
+    std::ofstream file("history.txt", std::ios::app);
+    file << counter << ") " << expression << "\n";
+    file.close();
+}
+
 //Gets expression passes to solver prints returned result
 int main(int argc, char* argv[]){
     std::string expression;
-
     if (argc == 2){
         expression = argv[1];
+        //Remove's Whitespace
+        expression.erase(std::remove_if(expression.begin(), expression.end(), ::isspace), expression.end());
+        double result = solver(expression);
+
     }
     else if (argc > 2){
         std::cerr << "Only 1 expression allowed" << std::endl;
         exit(1);
     }
     else{
-        std::cout << "Enter an expression: ";
-        std::getline(std::cin, expression);
+        char selection;
+        int counter = 0;
+        while (selection != 'c'){
+            std::cout << "Select an option:\na) Enter an expression to solve\nb) View History\nc) Exit\n";
+            std::cin >> selection;
+            std::cin.ignore();
+            if (selection == 'a'){
+                std::cout << "Enter an expression: ";
+                std::getline(std::cin, expression);
+                expression.erase(std::remove_if(expression.begin(), expression.end(), ::isspace), expression.end());
+                counter += 1;
+                saveToHistory(expression, counter);
+                double result = solver(expression);
+                std::cout << "Answer: " << result << std::endl;
+            }
+            if (selection == 'b'){
+                printHistory();
+            }
+            if (selection == 'c'){
+                //del history.txt
+                std::cout << "Goodbye!\n";
+            }
+        }
+        
     }
-    //Test this
-    //expression.erase(std::remove_if(expression.begin(), expression.end(), ::isspace), expression.end());
-    std::cout << "Expression: " << expression << std::endl;
-    double result = solver(expression);
-    std::cout << "Answer: " << result << std::endl;
     return 0;
 }
