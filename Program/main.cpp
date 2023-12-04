@@ -182,6 +182,14 @@ double termSolver(double operand1, double operand2, char op){
 
 // Breaks up the string into individual expressions which get passed to termSolver
 double expressionParser (std::string &s){
+    //Replace -- with +
+    size_t found = s.find("--");
+    while (found != std::string::npos) {
+        s.replace(found, 2, "+");
+        found = s.find("--", found + 1);
+    }
+
+
     //Check for addition operator
     if(s.find('+') != std::string::npos){
         int endpos = 0, count = s.size();
@@ -204,6 +212,7 @@ double expressionParser (std::string &s){
         //Combine results
         return termSolver(temp3, temp4, s[endpos]);
     }
+    
     //Check for subtraction operator
     else if(s.find('-') != std::string::npos){
         int endpos = 0, count = 0;
@@ -214,7 +223,7 @@ double expressionParser (std::string &s){
             }
             count++;
         }
-        if(isOperator(s[endpos-1])){
+        if(isOperator(s[endpos-1])){ //if(isOperator(s[endpos-1] == '-' && s[endpos-1])){
             std::string temp1 = s.substr(0,endpos-1);
             std::string temp2 = s.substr(endpos, s.size()-1);
             double temp3 = expressionParser(temp1);
@@ -233,6 +242,7 @@ double expressionParser (std::string &s){
         //Combine results
         return termSolver(temp3, temp4, s[endpos]);
     }
+    
     //Check for multiplication, division, or modulus operator
     else if(s.find('*') != std::string::npos || s.find('/') != std::string::npos || s.find('%') != std::string::npos){
         int endpos = 0, count =s.size();
@@ -255,6 +265,7 @@ double expressionParser (std::string &s){
         //Combine results
         return termSolver(temp3, temp4, s[endpos]);
     }
+    
     //Check for exponent operator
     else if(s.find('^') != std::string::npos){
         int endpos = 0, count = s.size();
