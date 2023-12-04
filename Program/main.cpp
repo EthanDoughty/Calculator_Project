@@ -97,7 +97,7 @@ bool errorHandler(std::string expression){
         if(expression[i] == '('){
             //Check if left has a parens, or operator
             int leftIndex = i-1;
-            if (leftIndex < 0 || (expression[leftIndex] != '(' && (!isOperator(expression[leftIndex])))){
+            if (leftIndex >= 0 && (expression[leftIndex] != '(' && (!isOperator(expression[leftIndex])))){
                 std::cerr << "Mismatched operands";
                 exit(2);
             }
@@ -192,12 +192,15 @@ double expressionParser (std::string &s){
             }
             count--;
         }
+        
         //Extract substrings left & right of operator
         std::string temp1 = s.substr(0,endpos);
         std::string temp2 = s.substr(endpos+1, s.size()-1);
+        
         //Recursively Parse Substrings
         double temp3 = expressionParser(temp1);
         double temp4 = expressionParser(temp2);
+        
         //Combine results
         return termSolver(temp3, temp4, s[endpos]);
     }
@@ -211,31 +214,44 @@ double expressionParser (std::string &s){
             }
             count++;
         }
+        if(isOperator(s[endpos-1])){
+            std::string temp1 = s.substr(0,endpos-1);
+            std::string temp2 = s.substr(endpos, s.size()-1);
+            double temp3 = expressionParser(temp1);
+            double temp4 = expressionParser(temp2);
+            return termSolver(temp3, temp4, s[endpos-1]);
+
+        }
         //Extract substrings left & right of operator
         std::string temp1 = s.substr(0,endpos);
         std::string temp2 = s.substr(endpos+1, s.size()-1);
+        
         //Recursively Parse Substrings
         double temp3 = expressionParser(temp1);
         double temp4 = expressionParser(temp2);
+
         //Combine results
         return termSolver(temp3, temp4, s[endpos]);
     }
-    //Check for multiplication or division operator
-    else if(s.find('*') != std::string::npos || s.find('/') != std::string::npos){
+    //Check for multiplication, division, or modulus operator
+    else if(s.find('*') != std::string::npos || s.find('/') != std::string::npos || s.find('%') != std::string::npos){
         int endpos = 0, count =s.size();
         while(count >= 0) {
-            if(s[count] == '*' || s[count] == '/'){
+            if(s[count] == '*' || s[count] == '/' || s[count] == '%'){
                 endpos = count;
                 break;
             }
             count--;
         }
+        
         //Extract substrings left & right of operator
         std::string temp1 = s.substr(0,endpos);
         std::string temp2 = s.substr(endpos+1, s.size()-1);
+        
         //Recursively Parse Substrings
         double temp3 = expressionParser(temp1);
         double temp4 = expressionParser(temp2);
+        
         //Combine results
         return termSolver(temp3, temp4, s[endpos]);
     }
@@ -249,17 +265,23 @@ double expressionParser (std::string &s){
             }
             count--;
         }
+        
         //Extract substrings left & right of operator
         std::string temp1 = s.substr(0,endpos);
         std::string temp2 = s.substr(endpos+1, s.size()-1);
+        
         //Recursively Parse Substrings
         double temp3 = expressionParser(temp1);
         double temp4 = expressionParser(temp2);
+        
         //Combine results
         return termSolver(temp3, temp4, s[endpos]);
     }
     //Converts string to double if no operators are found
     else{
+        if(s.size() == 0){
+            return 0;
+        }
         return stod(s);
     }
 }
@@ -325,12 +347,18 @@ int main(int argc, char* argv[]){
             if (selection == 'a'){
                 std::cout << "Enter an expression: ";
                 std::getline(std::cin, expression);
-                //Removes whitespace
-                expression.erase(std::remove_if(expression.begin(), expression.end(), ::isspace), expression.end());
-                //Gets answer of equation and saves to history.txt
-                double result = solver(expression);
-                saveToHistory(expression, result, counter);
-                std::cout << "Answer: " << result << std::endl;
+                if (expression.size() != 0){
+                    //Removes whitespace
+                    expression.erase(std::remove_if(expression.begin(), expression.end(), ::isspace), expression.end());
+                    //Gets answer of equation and saves to history.txt
+                    double result = solver(expression);
+                    saveToHistory(expression, result, counter);
+                    std::cout << "Answer: " << (std::round(result * 10000) / 10000) << std::endl;
+                }
+                else{
+                    std::cerr << "Expression can't be blank\n";
+                    exit(8);
+                }
             }
             //Prints out history.txt
             if (selection == 'b'){
